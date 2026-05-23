@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TODOS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Background grid -->
+  <div class="bg-grid" aria-hidden="true"></div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="header-left">
+        <span class="logo-mark">▣</span>
+        <h1 class="logo-text">TODOS</h1>
+      </div>
+      <div class="header-right">
+        <span class="status-dot" id="statusDot"></span>
+        <span class="status-label" id="statusLabel">connecting…</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="main">
+
+    <!-- Add form -->
+    <section class="add-section">
+      <div class="section-tag">// NEW TASK</div>
+      <div class="add-form">
+        <div class="input-row">
+          <div class="input-wrap">
+            <label class="field-label" for="taskInput">DESCRIPTION</label>
+            <input
+              type="text"
+              id="taskInput"
+              class="task-input"
+              placeholder="What needs doing…"
+              maxlength="300"
+              autocomplete="off"
+            />
+          </div>
+          <div class="toggle-wrap">
+            <label class="field-label" for="completedToggle">STATUS</label>
+            <label class="toggle">
+              <input type="checkbox" id="completedToggle" />
+              <span class="toggle-track">
+                <span class="toggle-thumb"></span>
+              </span>
+              <span class="toggle-text" id="toggleText">PENDING</span>
+            </label>
+          </div>
+        </div>
+        <button class="btn-add" id="addBtn" onclick="addTodo()">
+          <span class="btn-label">ADD TASK</span>
+          <span class="btn-arrow">→</span>
+        </button>
+      </div>
+      <div id="formMsg" class="form-msg" aria-live="polite"></div>
+    </section>
+
+    <!-- Controls bar -->
+    <div class="controls-bar">
+      <div class="stats-row">
+        <div class="stat-chip">
+          <span class="stat-num" id="statTotal">0</span>
+          <span class="stat-lbl">TOTAL</span>
+        </div>
+        <div class="stat-chip done">
+          <span class="stat-num" id="statDone">0</span>
+          <span class="stat-lbl">DONE</span>
+        </div>
+        <div class="stat-chip pending">
+          <span class="stat-num" id="statPending">0</span>
+          <span class="stat-lbl">PENDING</span>
+        </div>
+      </div>
+      <div class="filter-row">
+        <button class="filter-btn active" data-f="all"     onclick="setFilter('all',this)">ALL</button>
+        <button class="filter-btn"        data-f="pending" onclick="setFilter('pending',this)">PENDING</button>
+        <button class="filter-btn"        data-f="done"    onclick="setFilter('done',this)">DONE</button>
+        <button class="btn-clear-all" id="clearAllBtn" onclick="confirmClearAll()">⚠ CLEAR ALL</button>
+      </div>
+    </div>
+
+    <!-- Todo list -->
+    <section class="list-section">
+      <div class="section-tag">// TASK LIST</div>
+      <div id="todoList" class="todo-list">
+        <div class="skeleton-wrap" id="skeleton">
+          <div class="skeleton-item"></div>
+          <div class="skeleton-item"></div>
+          <div class="skeleton-item"></div>
+        </div>
+      </div>
+      <div id="emptyState" class="empty-state hidden">
+        <div class="empty-icon">◈</div>
+        <div class="empty-title">NO TASKS FOUND</div>
+        <div class="empty-sub">Add one above or switch the filter.</div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Edit modal -->
+  <div class="modal-overlay hidden" id="modalOverlay" onclick="closeModal(event)">
+    <div class="modal" id="modal">
+      <div class="modal-header">
+        <span class="modal-tag">// EDIT TASK</span>
+        <button class="modal-close" onclick="closeModal()" aria-label="Close">✕</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="editId" />
+        <div class="form-group">
+          <label class="field-label" for="editDesc">DESCRIPTION</label>
+          <textarea id="editDesc" class="edit-textarea" rows="3" maxlength="300" placeholder="Task description…"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="field-label">STATUS</label>
+          <label class="toggle">
+            <input type="checkbox" id="editCompleted" />
+            <span class="toggle-track">
+              <span class="toggle-thumb"></span>
+            </span>
+            <span class="toggle-text" id="editToggleText">PENDING</span>
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeModal()">CANCEL</button>
+        <button class="btn-save"   onclick="saveEdit()">SAVE CHANGES →</button>
+      </div>
+      <div id="modalMsg" class="form-msg" style="padding:0 24px 16px;"></div>
+    </div>
+  </div>
+
+  <!-- Confirm modal -->
+  <div class="modal-overlay hidden" id="confirmOverlay" onclick="closeConfirm(event)">
+    <div class="modal confirm-modal" id="confirmModal">
+      <div class="modal-header">
+        <span class="modal-tag">// CONFIRM</span>
+        <button class="modal-close" onclick="closeConfirm()" aria-label="Close">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="confirm-text" id="confirmText">Are you sure?</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeConfirm()">CANCEL</button>
+        <button class="btn-danger" id="confirmOkBtn">CONFIRM →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast" aria-live="assertive"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

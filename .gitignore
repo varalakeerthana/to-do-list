@@ -1,0 +1,16 @@
+# Ignore server dependencies
+server/node_modules/
+
+# Ignore environment files
+server/.env
+
+# Ignore database files (if you want)
+server/db.sqlite
+server/db.js
+server/*.db
+
+# Logs
+server/*.log
+
+# VS Code settings
+.vscode/
